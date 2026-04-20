@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-service
+  namespace: electricity-lab
+spec:
+  type: NodePort
+  selector:
+    app: electricity-api
+  ports:
+    - port: 3000
+      targetPort: 3000
+      nodePort: 30001
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: electricity-api
+  namespace: electricity-lab
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: electricity-api
+  template:
+    metadata:
+      labels:
+        app: electricity-api
+    spec:
+      containers:
+        - name: api
+          image: electricity-api:v1
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: MONGO_URI
+              value: "mongodb://mongodb:27017/electricityDB"
+          ports:
+            - containerPort: 3000
